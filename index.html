@@ -1,0 +1,2201 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#ff5500" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="./manifest.json" />
+  <title>REVERB MANAGER · Centro de Mando Indie & Shoegaze</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            serif: ['"Cormorant Garamond"', 'serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            void: '#0c0c0f',
+            abyss: '#121217',
+            nebula: '#16161c',
+            velvet: '#20202a',
+            scOrange: '#ff5500',
+            scGlow: '#ff7733',
+            shoegazeViolet: '#a855f7',
+            softViolet: '#d8b4fe',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #08080a;
+      color: #f4f4f6;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    .editorial-bg {
+      background:
+        radial-gradient(circle at 12% 8%, rgba(255, 85, 0, 0.12), transparent 38%),
+        radial-gradient(circle at 88% 22%, rgba(168, 85, 247, 0.14), transparent 44%),
+        radial-gradient(circle at 50% 92%, rgba(255, 85, 0, 0.08), transparent 48%),
+        #0c0c0f;
+    }
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 85, 0, 0.35);
+      border-radius: 999px;
+    }
+    .glass-card {
+      background: rgba(22, 22, 28, 0.82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-elevated {
+      background: rgba(14, 14, 18, 0.94);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-top: 1px solid rgba(255, 85, 0, 0.32);
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    @keyframes spinSlow {
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin-slow {
+      animation: spinSlow 1.4s linear infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex justify-center items-start sm:py-4">
+
+  <!-- Elemento de Audio HTML5 Real para Previews y Archivos Locales -->
+  <audio id="real-audio-player" preload="none" crossorigin="anonymous"></audio>
+
+  <!-- Contenedor principal tipo App Móvil -->
+  <div id="app-shell" class="editorial-bg relative w-full max-w-md min-h-screen sm:min-h-[850px] sm:h-[850px] sm:rounded-[34px] sm:border sm:border-white/10 sm:shadow-[0_0_60px_rgba(255,85,0,0.14)] flex flex-col overflow-hidden">
+
+    <!-- Header Superior -->
+    <header class="px-5 pt-4 pb-3 flex items-center justify-between border-b border-white/10 bg-void/80 backdrop-blur-md z-20 shrink-0">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-scOrange to-shoegazeViolet p-[1.5px] shadow-lg shadow-orange-600/20 shrink-0">
+          <div class="w-full h-full rounded-[10px] bg-void flex items-center justify-center">
+            <svg class="w-5 h-5 text-scOrange" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M2 12h2l2-5 3 10 3-14 3 12 2-3h5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-1.5">
+            <h1 class="text-sm font-bold tracking-wider uppercase text-white">REVERB MANAGER</h1>
+            <span id="live-net-badge" class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> LIVE
+            </span>
+          </div>
+          <p id="header-band-subtitle" class="text-[11px] text-zinc-400 truncate max-w-[205px]">Cacomixtles · Dream Pop / Shoegaze</p>
+        </div>
+      </div>
+
+      <button onclick="openBandProfileModal()" class="p-2 rounded-xl bg-velvet hover:bg-zinc-800 border border-white/10 text-zinc-200 transition active:scale-95 shrink-0" title="Editar perfil de banda">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Notificación Toast Flotante -->
+    <div id="toast-banner" class="pointer-events-none fixed sm:absolute top-16 left-1/2 -translate-x-1/2 z-50 opacity-0 transition-all duration-300 translate-y-[-8px]">
+      <div class="px-4 py-2 rounded-full bg-nebula/95 border border-scOrange/50 text-xs font-medium text-white shadow-2xl flex items-center gap-2 whitespace-nowrap">
+        <span class="w-2 h-2 rounded-full bg-scOrange animate-ping"></span>
+        <span id="toast-text">Listo</span>
+      </div>
+    </div>
+
+    <!-- Área de Contenido Principal con Scroll -->
+    <main id="main-content" class="flex-1 overflow-y-auto px-4 pt-4 pb-48 space-y-4 scroll-smooth">
+      <!-- Renderizado dinámicamente -->
+    </main>
+
+    <!-- Reproductor Persistente Estilo SoundCloud -->
+    <div id="persistent-player" class="glass-elevated px-4 py-2.5 z-30 shrink-0">
+      <div class="flex items-center justify-between gap-2.5 mb-1.5">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <button id="player-play-btn" onclick="togglePlayPause()" class="w-9 h-9 rounded-full bg-scOrange hover:bg-scGlow text-white flex items-center justify-center shrink-0 shadow-md shadow-orange-600/30 active:scale-90 transition">
+            <svg id="play-icon" class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            <svg id="pause-icon" class="w-4 h-4 hidden" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+          </button>
+          <div class="min-w-0">
+            <div class="flex items-center gap-1.5">
+              <p id="player-title" class="text-xs font-bold text-white truncate">Niebla en Coyoacán (Demo v3)</p>
+              <span id="player-source-badge" class="text-[9px] font-mono px-1.5 py-0.2 rounded bg-shoegazeViolet/20 text-softViolet border border-shoegazeViolet/30 shrink-0">Synth</span>
+            </div>
+            <p id="player-artist" class="text-[10px] text-zinc-400 truncate">Cacomixtles · Maqueta con Jazzmaster + BigSky</p>
+          </div>
+        </div>
+        <div class="text-right shrink-0">
+          <span id="player-time" class="text-[10px] font-mono text-scOrange font-semibold">00:00 / 00:30</span>
+        </div>
+      </div>
+
+      <!-- Waveform interactivo -->
+      <div id="waveform-container" onclick="seekWaveform(event)" class="relative h-8 flex items-end gap-[2px] cursor-pointer select-none pt-1 group" title="Toca para adelantar">
+        <!-- Barras generadas por JS -->
+      </div>
+
+      <!-- Barra inferior del reproductor: nota temporal o fuente de audio -->
+      <div class="flex items-center justify-between mt-1.5 pt-1 border-t border-white/10 text-[10px]">
+        <div id="active-timed-comment" class="text-zinc-300 truncate pr-2 italic">
+          💬 <span class="text-scOrange font-mono">00:00</span> "Toca play para escuchar"
+        </div>
+        <button id="player-action-btn" onclick="openAddCommentModal()" class="text-scOrange hover:underline font-semibold shrink-0">+ Nota en <span id="comment-sec-btn" class="font-mono">00:00</span></button>
+      </div>
+    </div>
+
+    <!-- Barra de Navegación Inferior (Bottom Tab Bar) -->
+    <nav class="bg-void/95 backdrop-blur-xl border-t border-white/10 px-2 py-2 grid grid-cols-4 gap-1 z-30 shrink-0">
+      <button onclick="switchTab('studio')" id="tab-studio" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-scOrange bg-scOrange/10 transition">
+        <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+        </svg>
+        <span class="text-[10px] font-semibold">Estudio</span>
+      </button>
+
+      <button onclick="switchTab('marketing')" id="tab-marketing" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-zinc-400 hover:text-white transition">
+        <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+        </svg>
+        <span class="text-[10px] font-semibold">Marketing</span>
+      </button>
+
+      <button onclick="switchTab('radar')" id="tab-radar" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-zinc-400 hover:text-white transition">
+        <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+        </svg>
+        <span class="text-[10px] font-semibold">Radar Vivo</span>
+      </button>
+
+      <button onclick="switchTab('agenda')" id="tab-agenda" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-xl text-zinc-400 hover:text-white transition">
+        <svg class="w-5 h-5 mb-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        <span class="text-[10px] font-semibold">Agenda</span>
+      </button>
+    </nav>
+
+    <!-- MODAL GENÉRICO REUTILIZABLE -->
+    <div id="modal-backdrop" class="hidden fixed sm:absolute inset-0 bg-black/85 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-3">
+      <div id="modal-box" class="w-full max-w-sm bg-nebula border border-white/15 rounded-3xl p-5 shadow-2xl space-y-4 max-h-[86vh] overflow-y-auto">
+        <!-- Contenido inyectado dinámicamente -->
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const apiKey = "";
+    const GEMINI_TEXT_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+    async function callGeminiWithBackoff(payload, retries = 3) {
+      let delay = 1000;
+      for (let i = 0; i < retries; i++) {
+        try {
+          const response = await fetch(GEMINI_TEXT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return await response.json();
+        } catch (err) {
+          if (i === retries - 1) throw err;
+          await new Promise(res => setTimeout(res, delay));
+          delay *= 2;
+        }
+      }
+    }
+
+    const STORAGE_KEY = 'reverb_manager_state_v2';
+
+    const DEFAULT_STATE = {
+      activeTab: 'radar',
+      lastSyncDate: 'Hoy · Sincronizado en vivo',
+      isSyncingRadar: false,
+      band: {
+        name: 'Cacomixtles',
+        city: 'Oaxaca / CDMX, México',
+        bio: 'Guitarras bañadas en chorus analógico, paredes de fuzz melancólico y letras nocturnas en español entre el dream pop y el shoegaze.',
+        genres: ['Dream Pop', 'Shoegaze', 'Indie Rock en Español'],
+        monthlyListeners: '5,340'
+      },
+      tracks: [
+        {
+          id: 't1',
+          title: 'Niebla en Coyoacán',
+          version: 'Demo v3 · Mezcla Nocturna',
+          status: 'Demo Privada',
+          genre: 'Shoegaze',
+          durationSec: 45,
+          plays: 418,
+          audioUrl: null,
+          notes: 'Jazzmaster puente -> Hall of Fame Shimmer -> Big Muff. Subir voz en el coro.',
+          waveform: [22, 35, 48, 62, 55, 78, 88, 92, 74, 65, 80, 95, 100, 86, 72, 60, 45, 58, 84, 96, 90, 82, 70, 50, 40, 66, 88, 94, 76, 52, 34, 20],
+          comments: [
+            { sec: 12, author: 'Sofía (Voz)', text: 'Subir 1.5dB el shimmer reverb en este puente' },
+            { sec: 28, author: 'Directora Mkt', text: '¡Este fragmento de 15s es el hook perfecto para TikTok/Reels!' }
+          ]
+        },
+        {
+          id: 't2',
+          title: 'Luces de Neón en la Lluvia',
+          version: 'Master Oficial 24-bit',
+          status: 'Publicado en Streaming',
+          genre: 'Dream Pop',
+          durationSec: 42,
+          plays: 14920,
+          audioUrl: null,
+          notes: 'Sencillo principal del EP. Distribuido en Spotify, Apple Music y Bandcamp.',
+          waveform: [18, 28, 40, 52, 68, 74, 64, 58, 72, 85, 80, 76, 88, 92, 84, 70, 62, 75, 89, 94, 86, 78, 66, 54, 68, 82, 74, 60, 48, 36, 24, 15],
+          comments: [
+            { sec: 8, author: 'Curador Indie', text: 'Me encanta la línea de bajo con chorus estilo Cocteau Twins' }
+          ]
+        }
+      ],
+      nowPlaying: {
+        id: 't1',
+        title: 'Niebla en Coyoacán',
+        artist: 'Cacomixtles',
+        subtitle: 'Demo v3 · Mezcla Nocturna',
+        genre: 'Shoegaze',
+        durationSec: 45,
+        audioUrl: null,
+        isExternal: false,
+        waveform: [22, 35, 48, 62, 55, 78, 88, 92, 74, 65, 80, 95, 100, 86, 72, 60, 45, 58, 84, 96, 90, 82, 70, 50, 40, 66, 88, 94, 76, 52, 34, 20]
+      },
+      isPlaying: false,
+      currentTimeSec: 0,
+      marketingFilter: 'Todos',
+      isGeneratingIdea: false,
+      savedIdeas: [
+        {
+          id: 'm1',
+          format: 'Reels / TikTok',
+          title: 'Anatomía de nuestro muro de sonido (Pedalboard)',
+          hook: '“Cómo sonar como un recuerdo borroso de los 90s en 3 pedales…”',
+          audio: 'Niebla en Coyoacán (Demo v3)',
+          copy: 'Sin filtros, puro reverb inverso y chorus analógico. ¿Qué pedal falta en esta cadena? 🌫️🎸 #ShoegazeMexico #DreamPopEnEspañol',
+          status: 'Editando'
+        },
+        {
+          id: 'm2',
+          format: 'Canvas de Spotify',
+          title: 'Loop Super 8 nocturno desde el coche bajo la lluvia',
+          hook: 'Visual granulado 16mm con luces de semáforo desenfocadas y grano VHS.',
+          audio: 'Luces de Neón en la Lluvia',
+          copy: 'Ya disponible en todas las plataformas. Escúchala con audífonos a medianoche.',
+          status: 'Programado'
+        }
+      ],
+      releaseChecklist: [
+        { id: 'c1', text: 'Subir master WAV 24-bit/48kHz y portada sin texto', done: true },
+        { id: 'c2', text: 'Activar campaña de Pre-Save con fragmento de 15s', done: true },
+        { id: 'c3', text: 'Pitch editorial en Spotify for Artists (mín. 3 semanas antes)', done: false },
+        { id: 'c4', text: 'Exportar Canvas vertical (8s) y letras sincronizadas', done: false },
+        { id: 'c5', text: 'Enviar Private Link de SoundCloud a 10 medios/curadores indie', done: false }
+      ],
+      radarSubTab: 'bandas',
+      radarGenreFilter: 'Todos',
+      radarSearch: '',
+      savedRadarIds: ['r_flores', 'r_findelmundo', 'r_ninos'],
+      sceneBands: [
+        {
+          id: 'r_flores',
+          name: 'Flores de Ana',
+          city: 'Ciudad de México, México',
+          formedYear: '2021',
+          genre: 'Dream Pop',
+          bio: 'Proyecto independiente mexicano que entrelaza guitarras cristalinas bañadas en chorus, sintetizadores nostálgicos y letras íntimas sobre la juventud urbana y el desamor.',
+          gearAndVibe: 'Fender Jazzmaster, Roland JC-40, chorus analógico, reverbs largos y estética visual lo-fi en tonos pastel y nocturnos.',
+          references: 'Alvvays, Beach House, Men I Trust, El Mató a un Policía Motorizado',
+          collabTip: 'Excelente afinidad sonora para armar fecha compartida en Foro Indie Rocks, Bajo Circuito o intercambio de playlists.',
+          searchQuery: 'Flores de Ana',
+          tracks: [
+            { title: 'Pétalos de Estática', album: 'EP Nocturno', durationSec: 30, previewUrl: null },
+            { title: 'Tarde Violeta', album: 'Sencillo', durationSec: 30, previewUrl: null }
+          ],
+          waveform: [20, 45, 70, 62, 80, 90, 75, 60, 85, 92, 70, 50, 65, 88, 76, 40],
+          aiInsight: ''
+        },
+        {
+          id: 'r_findelmundo',
+          name: 'Fin del Mundo',
+          city: 'Buenos Aires / Tierra del Fuego, Argentina',
+          formedYear: '2019',
+          genre: 'Shoegaze',
+          bio: 'Cuarteto argentino que combina el post-rock expansivo con muros de guitarras shoegaze, melodías luminosas y paisajes sonoros inspirados en la Patagonia.',
+          gearAndVibe: 'Dos guitarras con delays en cascada, fuzz envolvente, dinámicas de silencio a explosión sonora.',
+          references: 'Slowdive, Mogwai, Explosions in the Sky, Lush',
+          collabTip: 'Referente clave del nuevo shoegaze iberoamericano; estudia cómo estructuran sus crescendos instrumentales.',
+          searchQuery: 'Fin del Mundo Todo Va Hacia el Mar',
+          tracks: [
+            { title: 'El Próximo Verano', album: 'Todo Va Hacia el Mar', durationSec: 30, previewUrl: null },
+            { title: 'La Noche', album: 'Todo Va Hacia el Mar', durationSec: 30, previewUrl: null }
+          ],
+          waveform: [30, 55, 78, 92, 96, 88, 74, 82, 95, 90, 76, 62, 84, 91, 68, 35],
+          aiInsight: ''
+        },
+        {
+          id: 'r_ninos',
+          name: 'Niños del Cerro',
+          city: 'Santiago, Chile',
+          formedYear: '2014',
+          genre: 'Indie Rock',
+          bio: 'Banda fundamental de la escena indie chilena que fusiona guitarras neo-psicodélicas, capas de shoegaze y ritmos latinoamericanos con letras poéticas.',
+          gearAndVibe: 'Guitarras con trémolo y reverb de resortes, bajos melódicos al frente y percusiones orgánicas.',
+          references: 'Deerhunter, Real Estate, Gustavo Cerati, Los Planetas',
+          collabTip: 'Inspírate en su manejo de dinámicas orgánicas y su identidad visual artesanal.',
+          searchQuery: 'Niños del Cerro Lance',
+          tracks: [
+            { title: 'Contigo', album: 'Lance', durationSec: 30, previewUrl: null },
+            { title: 'Sufre', album: 'Lance', durationSec: 30, previewUrl: null }
+          ],
+          waveform: [25, 48, 66, 80, 72, 85, 92, 84, 70, 78, 88, 76, 64, 52, 40, 22],
+          aiInsight: ''
+        },
+        {
+          id: 'r_margarita',
+          name: 'Margarita Quebrada',
+          city: 'Valencia, España',
+          formedYear: '2019',
+          genre: 'Post-Punk',
+          bio: 'Dúo valenciano que cruza el post-punk melancólico con texturas dream pop, cajas de ritmo envolventes y guitarras llenas de chorus.',
+          gearAndVibe: 'Bajo con chorus marcado, sintetizadores fríos y voces etéreas con reverb plate.',
+          references: 'The Cure, Cocteau Twins, Depresión Sonora, DIIV',
+          collabTip: 'Gran referencia para conectar el sonido dream pop con audiencias de post-punk oscuro en España y México.',
+          searchQuery: 'Margarita Quebrada',
+          tracks: [
+            { title: 'Luces', album: 'Luces', durationSec: 30, previewUrl: null },
+            { title: 'Tu Voz', album: 'Gas Lágrima', durationSec: 30, previewUrl: null }
+          ],
+          waveform: [35, 62, 84, 78, 90, 86, 72, 80, 94, 88, 75, 68, 82, 74, 50, 28],
+          aiInsight: ''
+        },
+        {
+          id: 'r_club',
+          name: 'El Club Audiovisual',
+          city: 'Buenos Aires, Argentina',
+          formedYear: '2017',
+          genre: 'Shoegaze',
+          bio: 'Proyecto de noise pop y shoegaze porteño caracterizado por melodías pop escondidas bajo capas abrasivas de distorsión y reverberación.',
+          gearAndVibe: 'Overdrives apilados, afinaciones abiertas y estética visual cinematográfica en 16mm.',
+          references: 'My Bloody Valentine, Sonic Youth, Suárez, Ride',
+          collabTip: 'Observa cómo usan fragmentos visuales de cine independiente para promocionar sus lanzamientos.',
+          searchQuery: 'El Club Audiovisual',
+          tracks: [
+            { title: 'Ya No Estás', album: 'Ya No Estás', durationSec: 30, previewUrl: null },
+            { title: 'Un Lugar', album: 'EP', durationSec: 30, previewUrl: null }
+          ],
+          waveform: [42, 78, 94, 98, 90, 86, 92, 96, 84, 78, 90, 95, 86, 70, 52, 30],
+          aiInsight: ''
+        },
+        {
+          id: 'r_adelaida',
+          name: 'Adelaida',
+          city: 'Valparaíso, Chile',
+          formedYear: '2012',
+          genre: 'Shoegaze',
+          bio: 'Trío porteño de rock alternativo y shoegaze con guitarras densas, armonías vocales hipnóticas y espíritu DIY.',
+          gearAndVibe: 'Fuzzes gruesos, amplificadores a válvulas saturados y baterías contundentes.',
+          references: 'Smashing Pumpkins, Dinosaur Jr., Slowdive',
+          collabTip: 'Modelo de autogestión y giras independientes entre Chile, México y Japón.',
+          searchQuery: 'Adelaida Madre Culebra',
+          tracks: [
+            { title: 'Columpio', album: 'Madre Culebra', durationSec: 30, previewUrl: null }
+          ],
+          waveform: [38, 72, 88, 92, 84, 78, 86, 94, 82, 74, 88, 80, 66, 54, 42, 24],
+          aiInsight: ''
+        },
+        {
+          id: 'r_ligas',
+          name: 'Las Ligas Menores',
+          city: 'Buenos Aires, Argentina',
+          formedYear: '2011',
+          genre: 'Indie Rock',
+          bio: 'Banda insignia del indie rock y noise pop en español, con canciones directas, guitarras urgentes y una comunidad de seguidores muy fiel.',
+          gearAndVibe: 'Guitarras limpias con ligera saturación, melodías coreables y estética fanzine.',
+          references: 'Pavement, Guided by Voices, Los Punsetes',
+          collabTip: 'Estudia la cercanía con su comunidad y el diseño gráfico de sus portadas.',
+          searchQuery: 'Las Ligas Menores A 1200 Km',
+          tracks: [
+            { title: 'A 1200 Km', album: 'Las Ligas Menores', durationSec: 30, previewUrl: null }
+          ],
+          waveform: [30, 58, 76, 82, 74, 80, 88, 84, 76, 70, 82, 78, 64, 52, 36, 20],
+          aiInsight: ''
+        }
+      ],
+      curators: [
+        {
+          id: 'cur1',
+          name: 'Indie Dream México & Latam',
+          type: 'Medio Digital & Playlist',
+          focus: 'Dream Pop · Shoegaze · Post-Punk en Español',
+          contact: 'demos@indiedream.lat · Envío vía SoundCloud privado',
+          tip: 'Incluye una bio de 3 líneas y destaca qué pedales o referencias usaron.'
+        },
+        {
+          id: 'cur2',
+          name: 'Ruido Blanco & Terciopelo (Playlist)',
+          type: 'Curaduría Independiente (18.4k seg.)',
+          focus: 'Nuevas voces del shoegaze hispanoamericano',
+          contact: 'IG: @ruidoblanco.playlist',
+          tip: 'Actualizan todos los viernes; envía el track 10 días antes del estreno.'
+        },
+        {
+          id: 'cur3',
+          name: 'Frecuencia Subterránea FM',
+          type: 'Radio Universitaria / Podcast',
+          focus: 'Escena emergente CDMX, GDL, MTY y Oaxaca',
+          contact: 'programacion@frecuenciasub.org',
+          tip: 'Aceptan sesiones acústicas o en vivo desde sala de ensayo.'
+        },
+        {
+          id: 'cur4',
+          name: 'Onda Etérea Zine',
+          type: 'Fanzine Digital & Reseñas',
+          focus: 'Estética lo-fi, dream pop y arte visual independiente',
+          contact: 'hola@ondaeterea.com',
+          tip: 'Les encanta incluir fotos analógicas de la banda junto con la reseña.'
+        }
+      ],
+      events: [
+        {
+          id: 'e1',
+          title: 'Ensayo General + Ajuste de Pedales',
+          date: '2026-11-26',
+          time: '19:30',
+          location: 'Sala Lunar · Estudio B',
+          category: 'Ensayo'
+        },
+        {
+          id: 'e2',
+          title: 'Entrega Master Final "Fantasmas del Metro"',
+          date: '2026-11-29',
+          time: '14:00',
+          location: 'Distribuidora / Drive Banda',
+          category: 'Entrega Máster'
+        },
+        {
+          id: 'e3',
+          title: 'Show en Vivo: Noche Shoegaze & Dream Pop',
+          date: '2026-12-11',
+          time: '21:30',
+          location: 'Foro Bizarro · CDMX (con Flores de Ana)',
+          category: 'Fecha en Vivo'
+        }
+      ],
+      setlist: [
+        { id: 's1', title: 'Intro Atmosférica + Luces de Neón en la Lluvia', duration: '04:14', tuning: 'Estándar (E)', gear: 'Jazzmaster · Chorus CE-2 + Hall Reverb' },
+        { id: 's2', title: 'Fantasmas del Metro', duration: '03:16', tuning: 'Drop D', gear: 'Jaguar · Overdrive suave + Tape Delay' },
+        { id: 's3', title: 'Niebla en Coyoacán (Cierre)', duration: '03:48', tuning: 'FACGCE (Midwest)', gear: 'Big Muff + Shimmer 100% Wet' }
+      ],
+      tasks: [
+        { id: 'tk1', text: 'Comprar cables patch planos para la pedalboard de Mateo', done: false },
+        { id: 'tk2', text: 'Confirmar prueba de sonido (18:00h) para fecha del 11 de dic', done: true },
+        { id: 'tk3', text: 'Exportar stems sin voz para pistas de respaldo en vivo', done: false }
+      ]
+    };
+
+    let state = loadState();
+    let synthInterval = null;
+    let audioCtx = null;
+    const htmlAudio = document.getElementById('real-audio-player');
+    const localBlobUrls = {};
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          return {
+            ...DEFAULT_STATE,
+            ...parsed,
+            isPlaying: false,
+            isSyncingRadar: false,
+            isGeneratingIdea: false
+          };
+        }
+      } catch (e) {
+        console.warn('No se pudo cargar localStorage:', e);
+      }
+      return JSON.parse(JSON.stringify(DEFAULT_STATE));
+    }
+
+    function saveState() {
+      try {
+        const stateToSave = {
+          ...state,
+          tracks: state.tracks.map(t => ({ ...t, audioUrl: t.audioUrl && t.audioUrl.startsWith('blob:') ? null : t.audioUrl })),
+          nowPlaying: {
+            ...state.nowPlaying,
+            audioUrl: state.nowPlaying.audioUrl && state.nowPlaying.audioUrl.startsWith('blob:') ? null : state.nowPlaying.audioUrl
+          }
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
+      } catch (e) {
+        console.warn('No se pudo guardar en localStorage:', e);
+      }
+    }
+
+    function showToast(msg) {
+      const banner = document.getElementById('toast-banner');
+      const text = document.getElementById('toast-text');
+      text.textContent = msg;
+      banner.classList.remove('opacity-0', 'translate-y-[-8px]');
+      banner.classList.add('opacity-100', 'translate-y-0');
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => {
+        banner.classList.add('opacity-0', 'translate-y-[-8px]');
+        banner.classList.remove('opacity-100', 'translate-y-0');
+      }, 2600);
+    }
+
+    function triggerShoegazeSynthPad(seedIndex = 0) {
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const now = audioCtx.currentTime;
+
+        const progressions = [
+          [174.61, 220.00, 261.63, 329.63],
+          [164.81, 196.00, 246.94, 293.66],
+          [220.00, 261.63, 329.63, 493.88],
+          [130.81, 196.00, 246.94, 329.63]
+        ];
+        const chord = progressions[seedIndex % progressions.length];
+
+        chord.forEach((freq, idx) => {
+          const osc = audioCtx.createOscillator();
+          const oscDetune = audioCtx.createOscillator();
+          const filter = audioCtx.createBiquadFilter();
+          const gain = audioCtx.createGain();
+
+          osc.type = 'sawtooth';
+          oscDetune.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now);
+          oscDetune.frequency.setValueAtTime(freq * 1.004, now);
+
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(950, now);
+          filter.frequency.exponentialRampToValueAtTime(1800, now + 1.5);
+          filter.frequency.exponentialRampToValueAtTime(700, now + 3.6);
+
+          gain.gain.setValueAtTime(0.0001, now);
+          gain.gain.exponentialRampToValueAtTime(0.016, now + 0.6);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 3.8);
+
+          osc.connect(filter);
+          oscDetune.connect(filter);
+          filter.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.start(now + idx * 0.06);
+          oscDetune.start(now + idx * 0.06);
+          osc.stop(now + 3.9);
+          oscDetune.stop(now + 3.9);
+        });
+      } catch (e) {}
+    }
+
+    function stopAllAudio() {
+      htmlAudio.pause();
+      if (synthInterval) {
+        clearInterval(synthInterval);
+        synthInterval = null;
+      }
+    }
+
+    htmlAudio.addEventListener('timeupdate', () => {
+      if (!state.nowPlaying.audioUrl) return;
+      state.currentTimeSec = Math.floor(htmlAudio.currentTime);
+      if (htmlAudio.duration && !isNaN(htmlAudio.duration)) {
+        state.nowPlaying.durationSec = Math.floor(htmlAudio.duration);
+      }
+      renderPlayer();
+    });
+
+    htmlAudio.addEventListener('ended', () => {
+      state.isPlaying = false;
+      state.currentTimeSec = 0;
+      renderPlayer();
+      refreshActiveViewAudioState();
+    });
+
+    htmlAudio.addEventListener('error', () => {
+      if (state.isPlaying) {
+        showToast('Preview externo no disponible, activando Synth Shoegaze');
+        state.nowPlaying.audioUrl = null;
+        startSynthPlaybackLoop();
+        renderPlayer();
+      }
+    });
+
+    function startSynthPlaybackLoop() {
+      stopAllAudio();
+      let chordStep = 0;
+      triggerShoegazeSynthPad(chordStep++);
+      synthInterval = setInterval(() => {
+        state.currentTimeSec += 1;
+        if (state.currentTimeSec % 4 === 0) {
+          triggerShoegazeSynthPad(chordStep++);
+        }
+        if (state.currentTimeSec >= state.nowPlaying.durationSec) {
+          state.currentTimeSec = 0;
+          state.isPlaying = false;
+          stopAllAudio();
+          refreshActiveViewAudioState();
+        }
+        renderPlayer();
+      }, 1000);
+    }
+
+    function startPlayback() {
+      const effectiveUrl = localBlobUrls[state.nowPlaying.id] || state.nowPlaying.audioUrl;
+      state.isPlaying = true;
+
+      if (effectiveUrl) {
+        stopAllAudio();
+        if (htmlAudio.src !== effectiveUrl) {
+          htmlAudio.src = effectiveUrl;
+        }
+        htmlAudio.currentTime = state.currentTimeSec || 0;
+        htmlAudio.play().catch(() => {
+          startSynthPlaybackLoop();
+        });
+      } else {
+        startSynthPlaybackLoop();
+      }
+      renderPlayer();
+      refreshActiveViewAudioState();
+    }
+
+    function togglePlayPause() {
+      if (state.isPlaying) {
+        state.isPlaying = false;
+        stopAllAudio();
+        renderPlayer();
+        refreshActiveViewAudioState();
+      } else {
+        startPlayback();
+      }
+    }
+
+    function seekWaveform(event) {
+      const container = document.getElementById('waveform-container');
+      const rect = container.getBoundingClientRect();
+      const ratio = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+      const newSec = Math.floor(ratio * (state.nowPlaying.durationSec || 30));
+      state.currentTimeSec = newSec;
+      const effectiveUrl = localBlobUrls[state.nowPlaying.id] || state.nowPlaying.audioUrl;
+      if (effectiveUrl && !htmlAudio.paused) {
+        htmlAudio.currentTime = newSec;
+      }
+      renderPlayer();
+    }
+
+    function refreshActiveViewAudioState() {
+      if (state.activeTab === 'studio') renderStudioTab();
+    }
+
+    function selectBandTrack(trackId) {
+      const track = state.tracks.find(t => t.id === trackId);
+      if (!track) return;
+
+      if (state.nowPlaying.id === track.id && state.isPlaying) {
+        togglePlayPause();
+        return;
+      }
+
+      state.nowPlaying = {
+        id: track.id,
+        title: track.title,
+        artist: state.band.name,
+        subtitle: track.version,
+        genre: track.genre,
+        durationSec: track.durationSec,
+        audioUrl: localBlobUrls[track.id] || track.audioUrl,
+        isExternal: false,
+        waveform: track.waveform
+      };
+      state.currentTimeSec = 0;
+      startPlayback();
+    }
+
+    async function playSceneBandTrack(bandId, trackIndex = 0) {
+      const band = state.sceneBands.find(b => b.id === bandId);
+      if (!band) return;
+
+      const trackItem = (band.tracks && band.tracks[trackIndex]) || {
+        title: `Tema de ${band.name}`,
+        album: band.genre,
+        durationSec: 30,
+        previewUrl: null
+      };
+
+      const playId = `${band.id}_trk_${trackIndex}`;
+      if (state.nowPlaying.id === playId && state.isPlaying) {
+        togglePlayPause();
+        return;
+      }
+
+      if (!trackItem.previewUrl) {
+        showToast(`🔎 Buscando audio real de ${band.name}...`);
+        try {
+          const query = encodeURIComponent(`${band.name} ${trackItem.title}`);
+          const res = await fetch(`https://itunes.apple.com/search?term=${query}&entity=song&limit=3`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.results && data.results.length > 0 && data.results[0].previewUrl) {
+              trackItem.previewUrl = data.results[0].previewUrl;
+              trackItem.title = data.results[0].trackName || trackItem.title;
+              trackItem.album = data.results[0].collectionName || trackItem.album;
+              saveState();
+            }
+          }
+        } catch (e) {}
+      }
+
+      state.nowPlaying = {
+        id: playId,
+        bandId: band.id,
+        title: trackItem.title,
+        artist: band.name,
+        subtitle: `${band.city} · ${trackItem.album || band.genre}`,
+        genre: band.genre,
+        durationSec: 30,
+        audioUrl: trackItem.previewUrl || null,
+        isExternal: true,
+        waveform: band.waveform || [25, 45, 70, 88, 76, 62, 84, 92, 74, 58, 72, 86, 68, 50, 34, 22]
+      };
+      state.currentTimeSec = 0;
+      startPlayback();
+      showToast(trackItem.previewUrl ? `🎧 Reproduciendo preview real: ${trackItem.title}` : `🌌 Synth Shoegaze: ${trackItem.title}`);
+    }
+
+    function formatTime(sec) {
+      const s = Math.max(0, Math.floor(sec));
+      const m = Math.floor(s / 60);
+      const rem = s % 60;
+      return `${String(m).padStart(2, '0')}:${String(rem).padStart(2, '0')}`;
+    }
+
+    function renderPlayer() {
+      const np = state.nowPlaying;
+      if (!np) return;
+
+      document.getElementById('player-title').textContent = np.title;
+      document.getElementById('player-artist').textContent = `${np.artist} · ${np.subtitle}`;
+      document.getElementById('player-time').textContent = `${formatTime(state.currentTimeSec)} / ${formatTime(np.durationSec || 30)}`;
+
+      const badge = document.getElementById('player-source-badge');
+      const hasRealAudio = Boolean(localBlobUrls[np.id] || np.audioUrl);
+      if (hasRealAudio) {
+        badge.textContent = np.isExternal ? 'Audio Real' : 'MP3/WAV';
+        badge.className = 'text-[9px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0';
+      } else {
+        badge.textContent = 'Synth Pad';
+        badge.className = 'text-[9px] font-mono px-1.5 py-0.2 rounded bg-shoegazeViolet/20 text-softViolet border border-shoegazeViolet/30 shrink-0';
+      }
+
+      const playIcon = document.getElementById('play-icon');
+      const pauseIcon = document.getElementById('pause-icon');
+      if (state.isPlaying) {
+        playIcon.classList.add('hidden');
+        pauseIcon.classList.remove('hidden');
+      } else {
+        playIcon.classList.remove('hidden');
+        pauseIcon.classList.add('hidden');
+      }
+
+      const wfContainer = document.getElementById('waveform-container');
+      const progressRatio = state.currentTimeSec / (np.durationSec || 30);
+      const bars = np.waveform || [];
+      wfContainer.innerHTML = bars.map((val, idx) => {
+        const barRatio = idx / bars.length;
+        const isPlayed = barRatio <= progressRatio;
+        return `
+          <div class="flex-1 rounded-full transition-all duration-150 ${
+            isPlayed
+              ? 'bg-gradient-to-t from-scOrange to-shoegazeViolet'
+              : 'bg-white/15 group-hover:bg-white/30'
+          }" style="height: ${Math.max(18, val)}%"></div>
+        `;
+      }).join('');
+
+      const commentBox = document.getElementById('active-timed-comment');
+      const actionBtn = document.getElementById('player-action-btn');
+
+      if (np.isExternal && np.bandId) {
+        commentBox.innerHTML = `📡 <span class="text-scOrange font-mono">RADAR</span> Escuchando proyecto de la escena: <strong class="text-white">${np.artist}</strong>`;
+        actionBtn.innerHTML = `Ver Ficha →`;
+        actionBtn.onclick = () => openBandDetailModal(np.bandId);
+      } else {
+        const bandTrack = state.tracks.find(t => t.id === np.id);
+        if (bandTrack && bandTrack.comments && bandTrack.comments.length > 0) {
+          const closest = bandTrack.comments.reduce((prev, curr) =>
+            Math.abs(curr.sec - state.currentTimeSec) < Math.abs(prev.sec - state.currentTimeSec) ? curr : prev
+          );
+          commentBox.innerHTML = `💬 <span class="text-scOrange font-mono">${formatTime(closest.sec)}</span> <strong class="text-white">${closest.author}:</strong> "${closest.text}"`;
+        } else {
+          commentBox.innerHTML = `💬 Toca "+ Nota" para guardar apuntes de mezcla en este segundo.`;
+        }
+        actionBtn.innerHTML = `+ Nota en <span id="comment-sec-btn" class="font-mono">${formatTime(state.currentTimeSec)}</span>`;
+        actionBtn.onclick = () => openAddCommentModal();
+      }
+    }
+
+    async function syncRadarLive(customQuery = '') {
+      if (state.isSyncingRadar) return;
+      state.isSyncingRadar = true;
+      renderRadarTab();
+
+      const todayStr = new Date().toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' });
+      const searchTopic = customQuery.trim()
+        ? `proyectos musicales o bandas independientes relacionadas con "${customQuery}" en español (dream pop, shoegaze, indie rock, post-punk)`
+        : `nuevas bandas y proyectos emergentes poco conocidos de dream pop, shoegaze, noise pop e indie rock en español de México, Argentina, Chile, España o Latinoamérica`;
+
+      showToast(customQuery ? `🔎 Buscando "${customQuery}" en la escena...` : '📡 Sincronizando Radar en vivo con la escena...');
+
+      try {
+        const payload = {
+          contents: [{
+            parts: [{
+              text: `Actúa como curadora experta de música underground en español. Busca en internet ${searchTopic}. Devuelve exactamente 4 bandas o proyectos reales independientes (evita bandas mainstream masivas). Para cada proyecto devuelve JSON estricto con: name, city, formedYear, genre (solo uno de: "Dream Pop", "Shoegaze", "Indie Rock", "Post-Punk"), bio (2 oraciones), gearAndVibe (pedales, guitarras o atmósfera sonora), references (2 o 3 bandas afines), collabTip (cómo puede colaborar una banda indie con ellos), y songTitle (una canción real conocida de esa banda).`
+            }]
+          }],
+          tools: [{ google_search: {} }],
+          generationConfig: {
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: "ARRAY",
+              items: {
+                type: "OBJECT",
+                properties: {
+                  name: { type: "STRING" },
+                  city: { type: "STRING" },
+                  formedYear: { type: "STRING" },
+                  genre: { type: "STRING" },
+                  bio: { type: "STRING" },
+                  gearAndVibe: { type: "STRING" },
+                  references: { type: "STRING" },
+                  collabTip: { type: "STRING" },
+                  songTitle: { type: "STRING" }
+                },
+                required: ["name", "city", "genre", "bio", "gearAndVibe", "references", "collabTip", "songTitle"]
+              }
+            }
+          }
+        };
+
+        const geminiRes = await callGeminiWithBackoff(payload);
+        const rawText = geminiRes?.candidates?.[0]?.content?.parts?.[0]?.text;
+        let discovered = [];
+        if (rawText) {
+          discovered = JSON.parse(rawText);
+        }
+
+        for (const item of discovered) {
+          const exists = state.sceneBands.some(b => b.name.toLowerCase() === item.name.toLowerCase());
+          let tracksList = [{ title: item.songTitle || 'Sencillo Destacado', album: item.genre, durationSec: 30, previewUrl: null }];
+
+          try {
+            const itunesRes = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(item.name)}&entity=song&limit=3`);
+            if (itunesRes.ok) {
+              const itunesData = await itunesRes.json();
+              if (itunesData.results && itunesData.results.length > 0) {
+                tracksList = itunesData.results.map(r => ({
+                  title: r.trackName,
+                  album: r.collectionName || item.genre,
+                  durationSec: 30,
+                  previewUrl: r.previewUrl || null
+                }));
+              }
+            }
+          } catch (err) {}
+
+          if (!exists) {
+            state.sceneBands.unshift({
+              id: 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+              name: item.name,
+              city: item.city || 'Escena Hispanoamericana',
+              formedYear: item.formedYear || 'Reciente',
+              genre: ['Dream Pop', 'Shoegaze', 'Indie Rock', 'Post-Punk'].includes(item.genre) ? item.genre : 'Dream Pop',
+              bio: item.bio,
+              gearAndVibe: item.gearAndVibe,
+              references: item.references,
+              collabTip: item.collabTip,
+              tracks: tracksList,
+              waveform: Array.from({ length: 16 }, () => Math.floor(25 + Math.random() * 70)),
+              aiInsight: '',
+              isNewToday: true
+            });
+          } else {
+            const existingBand = state.sceneBands.find(b => b.name.toLowerCase() === item.name.toLowerCase());
+            if (existingBand && tracksList[0]?.previewUrl) {
+              existingBand.tracks = tracksList;
+            }
+          }
+        }
+
+        state.lastSyncDate = `Hoy (${todayStr}) · En vivo`;
+        showToast(`✨ Radar actualizado con ${discovered.length} proyectos en vivo`);
+      } catch (error) {
+        try {
+          const fallbackTerm = customQuery.trim() || 'shoegaze dream pop español';
+          const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(fallbackTerm)}&entity=song&limit=8`);
+          const data = await res.json();
+          if (data.results && data.results.length > 0) {
+            const grouped = {};
+            data.results.forEach(r => {
+              if (!grouped[r.artistName]) {
+                grouped[r.artistName] = {
+                  id: 'r_it_' + r.artistId,
+                  name: r.artistName,
+                  city: r.country || 'Escena Internacional / Latam',
+                  formedYear: r.releaseDate ? r.releaseDate.slice(0, 4) : 'Indie',
+                  genre: 'Dream Pop',
+                  bio: `Proyecto independiente descubierto en vivo en el catálogo digital. Destaca dentro de la corriente ${r.primaryGenreName || 'alternativa'}.`,
+                  gearAndVibe: 'Texturas atmosféricas, guitarras con modulación y producción independiente.',
+                  references: 'Escena Dream Pop & Shoegaze',
+                  collabTip: 'Escucha sus cortes disponibles y analiza su estructura de producción.',
+                  tracks: [],
+                  waveform: Array.from({ length: 16 }, () => Math.floor(25 + Math.random() * 70)),
+                  aiInsight: '',
+                  isNewToday: true
+                };
+              }
+              grouped[r.artistName].tracks.push({
+                title: r.trackName,
+                album: r.collectionName || 'Sencillo',
+                durationSec: 30,
+                previewUrl: r.previewUrl
+              });
+            });
+
+            Object.values(grouped).forEach(newBand => {
+              if (!state.sceneBands.some(b => b.name.toLowerCase() === newBand.name.toLowerCase())) {
+                state.sceneBands.unshift(newBand);
+              }
+            });
+            state.lastSyncDate = `Hoy (${todayStr}) · Catálogo iTunes`;
+            showToast('🎧 Proyectos cargados desde catálogo musical en vivo');
+          }
+        } catch (fallbackErr) {
+          showToast('⚠️ Modo offline activo: mostrando radar guardado');
+        }
+      } finally {
+        state.isSyncingRadar = false;
+        saveState();
+        if (state.activeTab === 'radar') renderRadarTab();
+      }
+    }
+
+    async function analyzeBandWithMarketingDirector(bandId) {
+      const band = state.sceneBands.find(b => b.id === bandId);
+      if (!band) return;
+
+      const btn = document.getElementById('ai-analyze-btn');
+      const outputBox = document.getElementById('ai-insight-box');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span class="inline-block w-3.5 h-3.5 border-2 border-void border-t-transparent rounded-full animate-spin"></span> Analizando proyecto...`;
+      }
+
+      try {
+        const payload = {
+          contents: [{
+            parts: [{
+              text: `Eres la Directora de Marketing y A&R de "${state.band.name}", una banda de ${state.band.genres.join(', ')} ubicada en ${state.band.city}. Analiza el proyecto "${band.name}" (${band.city}, género: ${band.genre}, sonido: ${band.gearAndVibe}). En máximo 3 viñetas cortas y accionables en español dinos: 1) Qué podemos aprender de su estética o sonido, 2) Cómo conectar con ellos (pitch para fecha compartida o playlist), 3) Una idea de contenido cruzado.`
+            }]
+          }],
+          tools: [{ google_search: {} }]
+        };
+
+        const res = await callGeminiWithBackoff(payload);
+        const text = res?.candidates?.[0]?.content?.parts?.[0]?.text || 'No se pudo obtener respuesta en este momento.';
+        band.aiInsight = text;
+        saveState();
+        if (outputBox) {
+          outputBox.innerHTML = formatSimpleMarkdown(text);
+          outputBox.classList.remove('hidden');
+        }
+        showToast('✨ Estrategia generada por tu Directora de Marketing');
+      } catch (e) {
+        const fallbackInsight = `• **Sonido & Estética:** Toma referencia de su manejo de dinámicas (${band.gearAndVibe}) para contrastar tus pasajes más suaves con explosiones de fuzz.\n• **Conexión Directa:** Escríbeles por Instagram compartiendo un link privado de SoundCloud de "${state.tracks[0]?.title || 'tu demo'}" proponiendo abrir su próxima fecha en ${state.band.city}.\n• **Contenido Cruzado:** Graba un Reel tocando un fragmento de "${band.tracks[0]?.title || 'su tema'}" etiquetándolos.`;
+        band.aiInsight = fallbackInsight;
+        saveState();
+        if (outputBox) {
+          outputBox.innerHTML = formatSimpleMarkdown(fallbackInsight);
+          outputBox.classList.remove('hidden');
+        }
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = `✨ Actualizar análisis estratégico`;
+        }
+      }
+    }
+
+    function formatSimpleMarkdown(text) {
+      return text
+        .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
+        .replace(/\n/g, '<br/>');
+    }
+
+    function switchTab(tabName) {
+      state.activeTab = tabName;
+      saveState();
+
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('text-scOrange', 'bg-scOrange/10');
+        btn.classList.add('text-zinc-400');
+      });
+      const activeBtn = document.getElementById(`tab-${tabName}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('text-zinc-400');
+        activeBtn.classList.add('text-scOrange', 'bg-scOrange/10');
+      }
+
+      const main = document.getElementById('main-content');
+      main.scrollTop = 0;
+
+      if (tabName === 'studio') renderStudioTab();
+      if (tabName === 'marketing') renderMarketingTab();
+      if (tabName === 'radar') renderRadarTab();
+      if (tabName === 'agenda') renderAgendaTab();
+    }
+
+    function updateHeaderBandInfo() {
+      document.getElementById('header-band-subtitle').textContent = `${state.band.name} · ${state.band.genres.slice(0, 2).join(' / ')}`;
+    }
+
+    function renderStudioTab() {
+      const main = document.getElementById('main-content');
+      const totalPlays = state.tracks.reduce((acc, t) => acc + Number(t.plays || 0), 0).toLocaleString('es-MX');
+
+      main.innerHTML = `
+        <section class="glass-card rounded-3xl p-4 relative overflow-hidden">
+          <div class="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-scOrange/15 blur-2xl pointer-events-none"></div>
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <span class="text-[10px] font-mono uppercase tracking-widest text-scOrange">Perfil Oficial & Distribuidora</span>
+              <h2 class="font-serif text-2xl font-bold text-white leading-tight mt-0.5">${state.band.name}</h2>
+              <p class="text-[11px] text-zinc-400 mt-0.5">📍 ${state.band.city}</p>
+            </div>
+            <button onclick="openBandProfileModal()" class="text-[11px] px-3 py-1.5 rounded-full bg-velvet hover:bg-zinc-800 border border-white/15 text-zinc-200 font-medium transition">
+              Editar bio
+            </button>
+          </div>
+
+          <p class="text-xs text-zinc-300 mt-2.5 leading-relaxed">${state.band.bio}</p>
+
+          <div class="flex flex-wrap gap-1.5 mt-3">
+            ${state.band.genres.map(g => `
+              <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-shoegazeViolet/15 text-softViolet border border-shoegazeViolet/30 font-medium">${g}</span>
+            `).join('')}
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-white/10 text-center">
+            <div class="bg-void/60 rounded-2xl py-2 px-1">
+              <p class="text-[10px] text-zinc-400">Streams</p>
+              <p class="text-sm font-bold font-mono text-white mt-0.5">${totalPlays}</p>
+            </div>
+            <div class="bg-void/60 rounded-2xl py-2 px-1">
+              <p class="text-[10px] text-zinc-400">Oyentes/Mes</p>
+              <p class="text-sm font-bold font-mono text-scOrange mt-0.5">${state.band.monthlyListeners}</p>
+            </div>
+            <div class="bg-void/60 rounded-2xl py-2 px-1">
+              <p class="text-[10px] text-zinc-400">Catálogo</p>
+              <p class="text-sm font-bold font-mono text-softViolet mt-0.5">${state.tracks.length} pistas</p>
+            </div>
+          </div>
+        </section>
+
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-bold text-white">Maquetas & Lanzamientos</h3>
+            <p class="text-[11px] text-zinc-400">Sube tus archivos MP3/WAV o prueba tus mezclas</p>
+          </div>
+          <button onclick="openUploadTrackModal()" class="px-3.5 py-2 rounded-2xl bg-scOrange hover:bg-scGlow text-white text-xs font-bold shadow-lg shadow-orange-600/25 active:scale-95 transition">
+            + Subir Audio
+          </button>
+        </div>
+
+        <div class="space-y-3">
+          ${state.tracks.map(track => {
+            const isCurrent = state.nowPlaying.id === track.id;
+            const hasLocalFile = Boolean(localBlobUrls[track.id] || track.audioUrl);
+            const badgeStyle =
+              track.status === 'Publicado en Streaming'
+                ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+                : track.status === 'En Revisión'
+                ? 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+                : 'bg-orange-500/15 text-scOrange border-orange-500/30';
+
+            return `
+              <article onclick="selectBandTrack('${track.id}')" class="glass-card rounded-2xl p-3.5 cursor-pointer transition hover:border-scOrange/40 ${isCurrent ? 'ring-1 ring-scOrange/70 bg-velvet/80' : ''}">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-9 h-9 rounded-xl ${isCurrent ? 'bg-scOrange text-white' : 'bg-velvet text-scOrange'} flex items-center justify-center shrink-0 font-bold text-xs">
+                      ${isCurrent && state.isPlaying ? '❚❚' : '▶'}
+                    </div>
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-1.5">
+                        <h4 class="text-xs font-bold text-white truncate">${track.title}</h4>
+                        ${hasLocalFile ? '<span class="text-[8px] font-mono px-1 rounded bg-emerald-500/20 text-emerald-300">WAV/MP3</span>' : ''}
+                      </div>
+                      <p class="text-[10px] text-zinc-400 truncate">${track.version}</p>
+                    </div>
+                  </div>
+                  <span class="text-[9px] font-medium px-2 py-0.5 rounded-full border ${badgeStyle} shrink-0">
+                    ${track.status}
+                  </span>
+                </div>
+
+                <div class="h-6 flex items-end gap-[2px] mt-3 px-0.5">
+                  ${track.waveform.map(v => `
+                    <div class="flex-1 rounded-full ${isCurrent ? 'bg-scOrange' : 'bg-zinc-500/35'}" style="height:${Math.max(20, v)}%"></div>
+                  `).join('')}
+                </div>
+
+                <div class="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] text-zinc-400">
+                  <span class="truncate max-w-[65%]">🎛️ ${track.notes}</span>
+                  <div class="flex items-center gap-2 font-mono shrink-0">
+                    <span>▶ ${Number(track.plays).toLocaleString('es-MX')}</span>
+                    <span>💬 ${(track.comments || []).length}</span>
+                  </div>
+                </div>
+              </article>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function renderMarketingTab() {
+      const main = document.getElementById('main-content');
+      const formats = ['Todos', 'Reels / TikTok', 'Post Carrusel', 'Canvas de Spotify', 'Press Kit'];
+      const filteredIdeas = state.marketingFilter === 'Todos'
+        ? state.savedIdeas
+        : state.savedIdeas.filter(i => i.format === state.marketingFilter);
+
+      const completedChecks = state.releaseChecklist.filter(c => c.done).length;
+      const checkPercent = Math.round((completedChecks / state.releaseChecklist.length) * 100);
+
+      main.innerHTML = `
+        <section class="glass-card rounded-3xl p-4 border-scOrange/30 relative overflow-hidden">
+          <div class="flex items-center justify-between gap-2">
+            <div>
+              <span class="text-[10px] font-mono uppercase tracking-wider text-scOrange">Directora Creativa & Estrategia IA</span>
+              <h2 class="font-serif text-2xl font-bold text-white mt-0.5">Narrativa Dream Pop</h2>
+            </div>
+            <button onclick="generateMarketingIdeaWithAI()" ${state.isGeneratingIdea ? 'disabled' : ''} class="px-3.5 py-2 rounded-2xl bg-gradient-to-r from-scOrange to-shoegazeViolet text-white text-xs font-bold shadow-lg shadow-orange-600/25 active:scale-95 transition shrink-0 flex items-center gap-1.5">
+              ${state.isGeneratingIdea ? '<span class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span> Pensando...' : '✨ Idea con IA'}
+            </button>
+          </div>
+          <p class="text-xs text-zinc-300 mt-2 leading-relaxed">
+            Genera ganchos para Reels/TikTok, conceptos de Canvas y estrategias conectadas a las tendencias actuales de la escena indie en español.
+          </p>
+        </section>
+
+        <div class="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
+          ${formats.map(f => `
+            <button onclick="setMarketingFilter('${f}')" class="px-3 py-1.5 rounded-full text-[11px] font-medium whitespace-nowrap transition ${
+              state.marketingFilter === f
+                ? 'bg-scOrange text-white font-bold'
+                : 'bg-velvet text-zinc-300 border border-white/10'
+            }">
+              ${f}
+            </button>
+          `).join('')}
+        </div>
+
+        <section class="space-y-2.5">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-300">Plan de Contenido (${filteredIdeas.length})</h3>
+            <span class="text-[10px] text-zinc-500">Toca estado para avanzar</span>
+          </div>
+
+          ${filteredIdeas.map(idea => {
+            const statusColor =
+              idea.status === 'Programado'
+                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                : idea.status === 'Editando'
+                ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                : 'bg-shoegazeViolet/20 text-softViolet border-shoegazeViolet/30';
+
+            return `
+              <article class="glass-card rounded-2xl p-3.5 space-y-2">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-scOrange/15 text-scOrange border border-scOrange/30">${idea.format}</span>
+                  <button onclick="cycleIdeaStatus('${idea.id}')" class="text-[10px] font-semibold px-2.5 py-0.5 rounded-full border ${statusColor} active:scale-95 transition">
+                    ${idea.status} ↻
+                  </button>
+                </div>
+
+                <h4 class="text-xs font-bold text-white">${idea.title}</h4>
+                <p class="text-[11px] text-softViolet italic">${idea.hook}</p>
+                <div class="bg-void/70 rounded-xl p-2.5 text-[11px] text-zinc-300 space-y-1 border border-white/5">
+                  <p><span class="text-scOrange font-semibold">🎵 Audio:</span> ${idea.audio}</p>
+                  <p><span class="text-scOrange font-semibold">✍️ Copy:</span> ${idea.copy}</p>
+                </div>
+
+                <div class="flex justify-end gap-3 pt-1">
+                  <button onclick="copyTextToClipboard('${idea.copy.replace(/'/g, "\\'")}')" class="text-[10px] text-softViolet hover:underline">Copiar copy</button>
+                  <button onclick="deleteMarketingIdea('${idea.id}')" class="text-[10px] text-rose-400 hover:underline">Eliminar</button>
+                </div>
+              </article>
+            `;
+          }).join('')}
+        </section>
+
+        <section class="glass-card rounded-3xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-xs font-bold text-white">Checklist de Lanzamiento Oficial</h3>
+              <p class="text-[10px] text-zinc-400">Pasos clave antes de estrenar sencillo</p>
+            </div>
+            <span class="text-xs font-mono font-bold text-scOrange">${checkPercent}%</span>
+          </div>
+
+          <div class="w-full h-1.5 bg-void rounded-full overflow-hidden">
+            <div class="h-full bg-gradient-to-r from-scOrange to-shoegazeViolet transition-all duration-300" style="width: ${checkPercent}%"></div>
+          </div>
+
+          <div class="space-y-2 pt-1">
+            ${state.releaseChecklist.map(item => `
+              <label onclick="toggleReleaseCheck('${item.id}')" class="flex items-start gap-2.5 p-2 rounded-xl bg-void/55 hover:bg-void cursor-pointer transition">
+                <input type="checkbox" ${item.done ? 'checked' : ''} class="mt-0.5 accent-orange-500 rounded pointer-events-none" />
+                <span class="text-xs leading-snug ${item.done ? 'line-through text-zinc-500' : 'text-zinc-200'}">${item.text}</span>
+              </label>
+            `).join('')}
+          </div>
+        </section>
+      `;
+    }
+
+    async function generateMarketingIdeaWithAI() {
+      if (state.isGeneratingIdea) return;
+      state.isGeneratingIdea = true;
+      renderMarketingTab();
+
+      const track = state.tracks[0] || { title: 'Nuevo Sencillo', genre: 'Dream Pop' };
+      const targetFormat = state.marketingFilter !== 'Todos' ? state.marketingFilter : 'Reels / TikTok';
+
+      try {
+        const payload = {
+          contents: [{
+            parts: [{
+              text: `Eres la Directora de Marketing de "${state.band.name}", banda de ${state.band.genres.join(', ')} en ${state.band.city}. Crea una idea fresca y viral de contenido en formato "${targetFormat}" para promocionar nuestra canción "${track.title}". Devuelve JSON con: title, hook (gancho visual o frase inicial), copy (caption con hashtags de nicho shoegaze/dream pop en español).`
+            }]
+          }],
+          generationConfig: {
+            responseMimeType: "application/json",
+            responseSchema: {
+              type: "OBJECT",
+              properties: {
+                title: { type: "STRING" },
+                hook: { type: "STRING" },
+                copy: { type: "STRING" }
+              },
+              required: ["title", "hook", "copy"]
+            }
+          }
+        };
+
+        const res = await callGeminiWithBackoff(payload);
+        const parsed = JSON.parse(res.candidates[0].content.parts[0].text);
+        state.savedIdeas.unshift({
+          id: 'm_' + Date.now(),
+          format: targetFormat,
+          title: parsed.title,
+          hook: parsed.hook,
+          audio: `${track.title} (${track.genre})`,
+          copy: parsed.copy,
+          status: 'Por grabar'
+        });
+        showToast('✨ Nueva estrategia creada por tu Directora de Marketing');
+      } catch (e) {
+        state.savedIdeas.unshift({
+          id: 'm_' + Date.now(),
+          format: targetFormat,
+          title: `Guitarra limpia vs. Muro de Reverb en "${track.title}"`,
+          hook: '“El secreto detrás de nuestras atmósferas nocturnas en 15 segundos…”',
+          audio: `${track.title}`,
+          copy: `Sube el volumen y ponte audífonos 🌌🎸 #ShoegazeEnEspañol #DreamPop #IndieLatino`,
+          status: 'Por grabar'
+        });
+        showToast('✨ Idea agregada al plan de contenido');
+      } finally {
+        state.isGeneratingIdea = false;
+        saveState();
+        renderMarketingTab();
+      }
+    }
+
+    function setMarketingFilter(format) {
+      state.marketingFilter = format;
+      renderMarketingTab();
+    }
+
+    function cycleIdeaStatus(id) {
+      const order = ['Por grabar', 'Editando', 'Programado'];
+      const idea = state.savedIdeas.find(i => i.id === id);
+      if (!idea) return;
+      idea.status = order[(order.indexOf(idea.status) + 1) % order.length];
+      saveState();
+      renderMarketingTab();
+    }
+
+    function deleteMarketingIdea(id) {
+      state.savedIdeas = state.savedIdeas.filter(i => i.id !== id);
+      saveState();
+      renderMarketingTab();
+      showToast('Idea eliminada');
+    }
+
+    function toggleReleaseCheck(id) {
+      const item = state.releaseChecklist.find(c => c.id === id);
+      if (item) {
+        item.done = !item.done;
+        saveState();
+        renderMarketingTab();
+      }
+    }
+
+    function renderRadarTab() {
+      const main = document.getElementById('main-content');
+      const genres = ['Todos', 'Dream Pop', 'Shoegaze', 'Indie Rock', 'Post-Punk'];
+
+      const baseList = state.radarSubTab === 'guardados'
+        ? state.sceneBands.filter(b => state.savedRadarIds.includes(b.id))
+        : state.sceneBands;
+
+      const filteredBands = baseList.filter(b => {
+        const matchesGenre = state.radarGenreFilter === 'Todos' || b.genre === state.radarGenreFilter;
+        const q = state.radarSearch.toLowerCase().trim();
+        const matchesQuery = !q ||
+          b.name.toLowerCase().includes(q) ||
+          b.city.toLowerCase().includes(q) ||
+          b.bio.toLowerCase().includes(q) ||
+          b.genre.toLowerCase().includes(q);
+        return matchesGenre && matchesQuery;
+      });
+
+      main.innerHTML = `
+        <section class="glass-card rounded-3xl p-3.5 border-scOrange/30 space-y-2.5">
+          <div class="flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-[10px] font-mono text-emerald-300 uppercase tracking-wider">Conectado · Radar en Vivo</span>
+              </div>
+              <p class="text-[10px] text-zinc-400 truncate mt-0.5">Última sync: <span class="text-zinc-200">${state.lastSyncDate}</span></p>
+            </div>
+
+            <button onclick="syncRadarLive()" ${state.isSyncingRadar ? 'disabled' : ''} class="px-3 py-2 rounded-2xl bg-scOrange hover:bg-scGlow text-white text-[11px] font-bold shadow-lg shadow-orange-600/25 active:scale-95 transition flex items-center gap-1.5 shrink-0">
+              <svg class="w-3.5 h-3.5 ${state.isSyncingRadar ? 'animate-spin-slow' : ''}" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+              </svg>
+              <span>${state.isSyncingRadar ? 'Sincronizando...' : 'Actualizar Radar Hoy'}</span>
+            </button>
+          </div>
+
+          <form onsubmit="handleRadarInternetSearch(event)" class="flex gap-1.5">
+            <div class="relative flex-1">
+              <input
+                type="text"
+                value="${state.radarSearch}"
+                oninput="updateRadarSearch(this.value)"
+                placeholder="Filtrar o buscar banda en internet..."
+                class="w-full bg-void/90 border border-white/15 rounded-xl pl-8 pr-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-scOrange"
+              />
+              <svg class="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+            </div>
+            <button type="submit" class="px-3 py-2 rounded-xl bg-velvet hover:bg-zinc-800 border border-shoegazeViolet/40 text-softViolet text-[11px] font-semibold shrink-0" title="Buscar en internet con IA + iTunes">
+              Buscar Web
+            </button>
+          </form>
+        </section>
+
+        <div class="grid grid-cols-3 gap-1.5 p-1 rounded-2xl bg-void/80 border border-white/10">
+          <button onclick="setRadarSubTab('bandas')" class="py-1.5 rounded-xl text-[11px] font-bold transition ${
+            state.radarSubTab === 'bandas' ? 'bg-velvet text-scOrange shadow' : 'text-zinc-400'
+          }">
+            🌌 Escena (${state.sceneBands.length})
+          </button>
+          <button onclick="setRadarSubTab('guardados')" class="py-1.5 rounded-xl text-[11px] font-bold transition ${
+            state.radarSubTab === 'guardados' ? 'bg-velvet text-scOrange shadow' : 'text-zinc-400'
+          }">
+            ★ Guardados (${state.savedRadarIds.length})
+          </button>
+          <button onclick="setRadarSubTab('curadores')" class="py-1.5 rounded-xl text-[11px] font-bold transition ${
+            state.radarSubTab === 'curadores' ? 'bg-velvet text-scOrange shadow' : 'text-zinc-400'
+          }">
+            📡 Medios
+          </button>
+        </div>
+
+        ${state.radarSubTab !== 'curadores' ? `
+          <div class="flex gap-1.5 overflow-x-auto no-scrollbar">
+            ${genres.map(g => `
+              <button onclick="setRadarGenre('${g}')" class="px-3 py-1 rounded-full text-[11px] font-medium whitespace-nowrap transition ${
+                state.radarGenreFilter === g
+                  ? 'bg-shoegazeViolet text-white font-bold'
+                  : 'bg-velvet/80 text-zinc-300 border border-white/10'
+              }">
+                ${g}
+              </button>
+            `).join('')}
+          </div>
+
+          <div class="space-y-3">
+            ${filteredBands.length === 0 ? `
+              <div class="glass-card rounded-2xl p-6 text-center space-y-2">
+                <p class="text-xs text-zinc-300">No hay proyectos en esta vista con ese filtro.</p>
+                ${state.radarSearch ? `
+                  <button onclick="syncRadarLive('${state.radarSearch.replace(/'/g, "\\'")}')" class="px-3.5 py-2 rounded-xl bg-scOrange text-white text-xs font-bold">
+                    🔎 Buscar "${state.radarSearch}" en internet ahora
+                  </button>
+                ` : ''}
+              </div>
+            ` : filteredBands.map(band => {
+              const isSaved = state.savedRadarIds.includes(band.id);
+              const firstTrack = (band.tracks && band.tracks[0]) || { title: 'Escuchar muestra', previewUrl: null };
+              const isThisPlaying = state.nowPlaying.bandId === band.id && state.isPlaying;
+
+              return `
+                <article class="glass-card rounded-3xl p-4 space-y-3 hover:border-scOrange/35 transition">
+                  <div class="flex items-start justify-between gap-2">
+                    <div onclick="openBandDetailModal('${band.id}')" class="cursor-pointer min-w-0 flex-1">
+                      <div class="flex items-center gap-1.5 flex-wrap">
+                        <h3 class="font-serif text-xl font-bold text-white hover:text-scOrange transition">${band.name}</h3>
+                        <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-shoegazeViolet/20 text-softViolet border border-shoegazeViolet/30">${band.genre}</span>
+                        ${band.isNewToday ? '<span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-scOrange/20 text-scOrange border border-scOrange/40">NUEVO</span>' : ''}
+                      </div>
+                      <p class="text-[11px] text-zinc-400 mt-0.5">📍 ${band.city} ${band.formedYear ? `· ${band.formedYear}` : ''}</p>
+                    </div>
+
+                    <button onclick="toggleSaveRadarBand('${band.id}')" class="px-2.5 py-1.5 rounded-xl text-[11px] font-semibold border transition active:scale-95 shrink-0 ${
+                      isSaved
+                        ? 'bg-scOrange/20 text-scOrange border-scOrange/40'
+                        : 'bg-void/70 text-zinc-300 border-white/10'
+                    }">
+                      ${isSaved ? '★ Guardado' : '☆ Guardar'}
+                    </button>
+                  </div>
+
+                  <p onclick="openBandDetailModal('${band.id}')" class="text-xs text-zinc-300 leading-relaxed line-clamp-2 cursor-pointer">${band.bio}</p>
+
+                  <div class="bg-void/80 rounded-2xl p-2.5 flex items-center justify-between gap-2.5 border border-white/10">
+                    <button onclick="playSceneBandTrack('${band.id}', 0)" class="w-8 h-8 rounded-full ${isThisPlaying ? 'bg-scOrange text-white' : 'bg-scOrange/20 text-scOrange'} flex items-center justify-center shrink-0 hover:bg-scOrange hover:text-white transition">
+                      ${isThisPlaying ? '❚❚' : '▶'}
+                    </button>
+                    <div onclick="playSceneBandTrack('${band.id}', 0)" class="flex-1 min-w-0 cursor-pointer">
+                      <div class="flex items-center justify-between gap-1">
+                        <p class="text-[11px] font-semibold text-white truncate">${firstTrack.title}</p>
+                        <span class="text-[9px] font-mono text-zinc-400 shrink-0">${firstTrack.previewUrl ? 'Preview Real' : 'Escuchar'}</span>
+                      </div>
+                      <div class="h-3 flex items-end gap-[2px] mt-1">
+                        ${(band.waveform || []).map(v => `<div class="flex-1 ${isThisPlaying ? 'bg-scOrange' : 'bg-shoegazeViolet/50'} rounded-full" style="height:${v}%"></div>`).join('')}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center justify-between pt-1">
+                    <span class="text-[10px] text-zinc-400 truncate max-w-[60%]">RIYL: ${band.references}</span>
+                    <button onclick="openBandDetailModal('${band.id}')" class="text-[11px] font-bold text-scOrange hover:underline flex items-center gap-1 shrink-0">
+                      Ficha & Discografía →
+                    </button>
+                  </div>
+                </article>
+              `;
+            }).join('')}
+          </div>
+        ` : `
+          <div class="space-y-3">
+            <div class="glass-card rounded-2xl p-3.5 text-xs text-zinc-300">
+              💡 <strong>Consejo de tu Directora de Marketing:</strong> Cuando escribas a curadores de dream pop/shoegaze, adjunta siempre un enlace privado de SoundCloud con la mezcla limpia y menciona 2 bandas afines de la escena.
+            </div>
+
+            ${state.curators.map(cur => `
+              <article class="glass-card rounded-2xl p-4 space-y-2">
+                <div class="flex items-start justify-between gap-2">
+                  <div>
+                    <span class="text-[10px] font-mono text-scOrange uppercase">${cur.type}</span>
+                    <h3 class="text-sm font-bold text-white mt-0.5">${cur.name}</h3>
+                  </div>
+                  <button onclick="copyTextToClipboard('${cur.contact.replace(/'/g, "\\'")}')" class="px-2.5 py-1 rounded-xl bg-velvet text-[10px] text-zinc-200 border border-white/15 active:scale-95">
+                    Copiar contacto
+                  </button>
+                </div>
+                <p class="text-xs text-zinc-300">🎯 <strong>Enfoque:</strong> ${cur.focus}</p>
+                <p class="text-[11px] font-mono text-softViolet">${cur.contact}</p>
+                <p class="text-[11px] text-zinc-400 bg-void/60 p-2 rounded-xl">✨ ${cur.tip}</p>
+              </article>
+            `).join('')}
+          </div>
+        `}
+      `;
+    }
+
+    function handleRadarInternetSearch(e) {
+      e.preventDefault();
+      if (!state.radarSearch.trim()) {
+        syncRadarLive();
+      } else {
+        syncRadarLive(state.radarSearch);
+      }
+    }
+
+    function setRadarSubTab(sub) {
+      state.radarSubTab = sub;
+      renderRadarTab();
+    }
+
+    function setRadarGenre(genre) {
+      state.radarGenreFilter = genre;
+      renderRadarTab();
+    }
+
+    function updateRadarSearch(val) {
+      state.radarSearch = val;
+      renderRadarTab();
+    }
+
+    function toggleSaveRadarBand(id) {
+      if (state.savedRadarIds.includes(id)) {
+        state.savedRadarIds = state.savedRadarIds.filter(x => x !== id);
+        showToast('Eliminado de Guardados');
+      } else {
+        state.savedRadarIds.push(id);
+        showToast('★ Proyecto guardado en tus referencias');
+      }
+      saveState();
+      renderRadarTab();
+    }
+
+    async function openBandDetailModal(bandId) {
+      const band = state.sceneBands.find(b => b.id === bandId);
+      if (!band) return;
+
+      const isSaved = state.savedRadarIds.includes(band.id);
+      const qEncoded = encodeURIComponent(band.name);
+
+      renderBandDetailModalContent(band, isSaved, qEncoded);
+
+      const needsFetch = !band.tracks || band.tracks.length === 0 || !band.tracks[0].previewUrl;
+      if (needsFetch) {
+        try {
+          const res = await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(band.searchQuery || band.name)}&entity=song&limit=4`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.results && data.results.length > 0) {
+              band.tracks = data.results.map(r => ({
+                title: r.trackName,
+                album: r.collectionName || band.genre,
+                durationSec: 30,
+                previewUrl: r.previewUrl || null
+              }));
+              saveState();
+              const backdrop = document.getElementById('modal-backdrop');
+              if (!backdrop.classList.contains('hidden')) {
+                renderBandDetailModalContent(band, state.savedRadarIds.includes(band.id), qEncoded);
+              }
+            }
+          }
+        } catch (e) {}
+      }
+    }
+
+    function renderBandDetailModalContent(band, isSaved, qEncoded) {
+      openModal(`
+        <div class="flex items-start justify-between gap-2">
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-shoegazeViolet/20 text-softViolet border border-shoegazeViolet/30">${band.genre}</span>
+              ${band.formedYear ? `<span class="text-[10px] font-mono text-zinc-400">Desde ${band.formedYear}</span>` : ''}
+            </div>
+            <h2 class="font-serif text-2xl font-bold text-white mt-1">${band.name}</h2>
+            <p class="text-xs text-zinc-400">📍 ${band.city}</p>
+          </div>
+          <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-void/80 text-zinc-300 hover:text-white flex items-center justify-center shrink-0">✕</button>
+        </div>
+
+        <div class="space-y-2.5 text-xs">
+          <p class="text-zinc-200 leading-relaxed">${band.bio}</p>
+
+          <div class="bg-void/80 rounded-2xl p-3 border border-white/10 space-y-2">
+            <div>
+              <span class="text-[10px] font-mono uppercase text-scOrange block">🎛️ Gear & Atmósfera Sonora</span>
+              <p class="text-zinc-300 mt-0.5">${band.gearAndVibe}</p>
+            </div>
+            <div class="pt-1.5 border-t border-white/5">
+              <span class="text-[10px] font-mono uppercase text-softViolet block">💿 Referencias Musicales (RIYL)</span>
+              <p class="text-zinc-300 mt-0.5">${band.references}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-white uppercase tracking-wider">Canciones & Muestras</h3>
+            <span class="text-[10px] text-zinc-400">Toca para escuchar</span>
+          </div>
+          <div class="space-y-1.5">
+            ${(band.tracks || []).map((trk, idx) => {
+              const isPlayingThis = state.nowPlaying.id === `${band.id}_trk_${idx}` && state.isPlaying;
+              return `
+                <button onclick="playSceneBandTrack('${band.id}', ${idx})" class="w-full text-left p-2.5 rounded-xl bg-void/70 hover:bg-velvet border ${isPlayingThis ? 'border-scOrange' : 'border-white/10'} flex items-center justify-between gap-2 transition">
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <span class="w-7 h-7 rounded-lg ${isPlayingThis ? 'bg-scOrange text-white' : 'bg-scOrange/20 text-scOrange'} flex items-center justify-center text-xs font-bold shrink-0">
+                      ${isPlayingThis ? '❚❚' : '▶'}
+                    </span>
+                    <div class="min-w-0">
+                      <p class="text-xs font-semibold text-white truncate">${trk.title}</p>
+                      <p class="text-[10px] text-zinc-400 truncate">${trk.album || band.genre}</p>
+                    </div>
+                  </div>
+                  <span class="text-[9px] font-mono px-1.5 py-0.5 rounded ${trk.previewUrl ? 'bg-emerald-500/15 text-emerald-300' : 'bg-shoegazeViolet/15 text-softViolet'} shrink-0">
+                    ${trk.previewUrl ? 'Audio Real' : 'Synth'}
+                  </span>
+                </button>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <div class="bg-gradient-to-br from-scOrange/10 to-shoegazeViolet/10 border border-scOrange/30 rounded-2xl p-3 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-[10px] font-mono uppercase text-scOrange font-bold">Directora de Marketing</span>
+            <button id="ai-analyze-btn" onclick="analyzeBandWithMarketingDirector('${band.id}')" class="px-2.5 py-1 rounded-xl bg-scOrange text-white text-[11px] font-bold active:scale-95 transition">
+              ✨ ${band.aiInsight ? 'Actualizar análisis' : 'Analizar para mi banda'}
+            </button>
+          </div>
+          <p class="text-[11px] text-zinc-300">🤝 ${band.collabTip}</p>
+          <div id="ai-insight-box" class="${band.aiInsight ? '' : 'hidden'} pt-2 border-t border-white/10 text-[11px] text-zinc-200 leading-relaxed">
+            ${band.aiInsight ? formatSimpleMarkdown(band.aiInsight) : ''}
+          </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <span class="text-[10px] font-mono uppercase text-zinc-400 block">Explorar en plataformas externas</span>
+          <div class="grid grid-cols-4 gap-1.5 text-center text-[10px] font-bold">
+            <a href="https://soundcloud.com/search?q=${qEncoded}" target="_blank" rel="noopener noreferrer" class="py-2 rounded-xl bg-[#ff5500]/20 text-[#ff7733] border border-[#ff5500]/35 hover:bg-[#ff5500]/30">SoundCloud</a>
+            <a href="https://bandcamp.com/search?q=${qEncoded}" target="_blank" rel="noopener noreferrer" class="py-2 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-500/35 hover:bg-sky-500/30">Bandcamp</a>
+            <a href="https://open.spotify.com/search/${qEncoded}" target="_blank" rel="noopener noreferrer" class="py-2 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/35 hover:bg-emerald-500/30">Spotify</a>
+            <a href="https://www.youtube.com/results?search_query=${qEncoded}" target="_blank" rel="noopener noreferrer" class="py-2 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/35 hover:bg-rose-500/30">YouTube</a>
+          </div>
+        </div>
+      `);
+    }
+
+    function renderAgendaTab() {
+      const main = document.getElementById('main-content');
+      const sortedEvents = [...state.events].sort((a, b) => a.date.localeCompare(b.date));
+
+      main.innerHTML = `
+        <section class="space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <h2 class="text-sm font-bold text-white">Agenda de la Banda</h2>
+              <p class="text-[11px] text-zinc-400">Ensayos, fechas en vivo y entregas</p>
+            </div>
+            <button onclick="openAddEventModal()" class="px-3.5 py-2 rounded-2xl bg-scOrange hover:bg-scGlow text-white text-xs font-bold shadow-lg shadow-orange-600/20 active:scale-95 transition">
+              + Evento
+            </button>
+          </div>
+
+          <div class="space-y-2.5">
+            ${sortedEvents.map(ev => {
+              const catBadge =
+                ev.category === 'Fecha en Vivo'
+                  ? 'bg-scOrange/20 text-scOrange border-scOrange/35'
+                  : ev.category === 'Entrega Máster'
+                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/35'
+                  : ev.category === 'Contenido'
+                  ? 'bg-shoegazeViolet/20 text-softViolet border-shoegazeViolet/35'
+                  : 'bg-sky-500/20 text-sky-300 border-sky-500/35';
+
+              const dateObj = new Date(ev.date + 'T12:00:00');
+              const dayNum = dateObj.toLocaleDateString('es-MX', { day: '2-digit' });
+              const monthShort = dateObj.toLocaleDateString('es-MX', { month: 'short' }).toUpperCase();
+
+              return `
+                <article class="glass-card rounded-2xl p-3 flex items-center gap-3">
+                  <div class="w-12 h-14 rounded-2xl bg-void border border-white/15 flex flex-col items-center justify-center shrink-0">
+                    <span class="text-[9px] font-mono text-scOrange font-bold">${monthShort}</span>
+                    <span class="text-base font-bold text-white leading-tight">${dayNum}</span>
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between gap-1.5">
+                      <span class="text-[9px] font-semibold px-2 py-0.5 rounded-full border ${catBadge}">${ev.category}</span>
+                      <span class="text-[10px] font-mono text-zinc-400">${ev.time}h</span>
+                    </div>
+                    <h3 class="text-xs font-bold text-white truncate mt-1">${ev.title}</h3>
+                    <p class="text-[11px] text-zinc-400 truncate">📍 ${ev.location}</p>
+                  </div>
+                  <button onclick="deleteEvent('${ev.id}')" class="text-zinc-500 hover:text-rose-400 p-1 text-xs">✕</button>
+                </article>
+              `;
+            }).join('')}
+          </div>
+        </section>
+
+        <section class="glass-card rounded-3xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-xs font-bold text-white">Setlist en Vivo & Afinaciones</h3>
+              <p class="text-[10px] text-zinc-400">Ordena canciones y presets de pedales</p>
+            </div>
+            <button onclick="openAddSetlistModal()" class="text-[11px] font-semibold text-scOrange hover:underline">+ Canción</button>
+          </div>
+
+          <div class="space-y-2">
+            ${state.setlist.map((song, idx) => `
+              <div class="bg-void/70 border border-white/10 rounded-2xl p-2.5 flex items-center justify-between gap-2">
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] font-mono text-scOrange font-bold">#${idx + 1}</span>
+                    <h4 class="text-xs font-semibold text-white truncate">${song.title}</h4>
+                  </div>
+                  <p class="text-[10px] text-zinc-400 mt-0.5">🎸 ${song.tuning} · <span class="text-softViolet">${song.gear}</span></p>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                  <span class="text-[10px] font-mono text-zinc-500 mr-1">${song.duration}</span>
+                  <button onclick="moveSetlistItem(${idx}, -1)" class="w-6 h-6 rounded-lg bg-velvet text-zinc-200 text-xs disabled:opacity-30" ${idx === 0 ? 'disabled' : ''}>↑</button>
+                  <button onclick="moveSetlistItem(${idx}, 1)" class="w-6 h-6 rounded-lg bg-velvet text-zinc-200 text-xs disabled:opacity-30" ${idx === state.setlist.length - 1 ? 'disabled' : ''}>↓</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </section>
+
+        <section class="glass-card rounded-3xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-white">Pendientes & Logística</h3>
+            <span class="text-[10px] font-mono text-zinc-400">${state.tasks.filter(t => t.done).length}/${state.tasks.length} listos</span>
+          </div>
+
+          <form onsubmit="addBandTask(event)" class="flex gap-2">
+            <input id="new-task-input" type="text" placeholder="Ej. Llevar fuentes de poder extra..." class="flex-1 bg-void border border-white/15 rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-scOrange" />
+            <button type="submit" class="px-3 py-2 rounded-xl bg-velvet border border-scOrange/40 text-scOrange text-xs font-bold">+</button>
+          </form>
+
+          <div class="space-y-1.5">
+            ${state.tasks.map(task => `
+              <div class="flex items-center justify-between gap-2 p-2 rounded-xl bg-void/50">
+                <label onclick="toggleBandTask('${task.id}')" class="flex items-center gap-2.5 cursor-pointer flex-1 min-w-0">
+                  <input type="checkbox" ${task.done ? 'checked' : ''} class="accent-orange-500 pointer-events-none" />
+                  <span class="text-xs truncate ${task.done ? 'line-through text-zinc-500' : 'text-zinc-200'}">${task.text}</span>
+                </label>
+                <button onclick="deleteBandTask('${task.id}')" class="text-[10px] text-zinc-500 hover:text-rose-400 px-1">✕</button>
+              </div>
+            `).join('')}
+          </div>
+        </section>
+      `;
+    }
+
+    function moveSetlistItem(index, dir) {
+      const target = index + dir;
+      if (target < 0 || target >= state.setlist.length) return;
+      const temp = state.setlist[index];
+      state.setlist[index] = state.setlist[target];
+      state.setlist[target] = temp;
+      saveState();
+      renderAgendaTab();
+    }
+
+    function addBandTask(e) {
+      e.preventDefault();
+      const input = document.getElementById('new-task-input');
+      const text = input.value.trim();
+      if (!text) return;
+      state.tasks.unshift({ id: 'tk_' + Date.now(), text, done: false });
+      input.value = '';
+      saveState();
+      renderAgendaTab();
+      showToast('Tarea agregada');
+    }
+
+    function toggleBandTask(id) {
+      const t = state.tasks.find(x => x.id === id);
+      if (t) {
+        t.done = !t.done;
+        saveState();
+        renderAgendaTab();
+      }
+    }
+
+    function deleteBandTask(id) {
+      state.tasks = state.tasks.filter(x => x.id !== id);
+      saveState();
+      renderAgendaTab();
+    }
+
+    function deleteEvent(id) {
+      state.events = state.events.filter(x => x.id !== id);
+      saveState();
+      renderAgendaTab();
+      showToast('Evento eliminado');
+    }
+
+    function openModal(html) {
+      const backdrop = document.getElementById('modal-backdrop');
+      const box = document.getElementById('modal-box');
+      box.innerHTML = html;
+      backdrop.classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('modal-backdrop').classList.add('hidden');
+    }
+
+    function openBandProfileModal() {
+      openModal(`
+        <div class="flex items-center justify-between">
+          <h3 class="font-serif text-xl font-bold text-white">Perfil de la Banda</h3>
+          <button onclick="closeModal()" class="text-zinc-400 hover:text-white">✕</button>
+        </div>
+        <form onsubmit="saveBandProfile(event)" class="space-y-3 text-xs">
+          <div>
+            <label class="block text-zinc-300 mb-1">Nombre del Proyecto</label>
+            <input id="edit-band-name" required value="${state.band.name}" class="w-full bg-void border border-white/15 rounded-xl px-3 py-2 text-white" />
+          </div>
+          <div>
+            <label class="block text-zinc-300 mb-1">Ciudad / Escena</label>
+            <input id="edit-band-city" required value="${state.band.city}" class="w-full bg-void border border-white/15 rounded-xl px-3 py-2 text-white" />
+          </div>
+          <div>
+            <label class="block text-zinc-300 mb-1">Biografía Editorial</label>
+            <textarea id="edit-band-bio" rows="3" class="w-full bg-void border border-white/15 rounded-xl px-3 py-2 text-white">${state.band.bio}</textarea>
+          </div>
+          <div>
+            <label class="block text-zinc-300 mb-1">Subgéneros (separados por coma)</label>
+            <input id="edit-band-genres" value="${state.band.genres.join(', ')}" class="w-full bg-void border border-white/15 rounded-xl px-3 py-2 text-white" />
+          </div>
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-scOrange text-white font-bold">
+            Guardar Perfil
+          </button>
+        </form>
+      `);
+    }
+
+    function saveBandProfile(e) {
+      e.preventDefault();
+      state.band.name = document.getElementById('edit-band-name').value.trim() || state.band.name;
+      state.band.city = document.getElementById('edit-band-city').value.trim() || state.band.city;
+      state.band.bio = document.getElementById('edit-band-bio').value.trim();
+      state.band.genres = document.getElementById('edit-band-genres').value.split(',').map(s => s.trim()).filter(Boolean);
+      saveState();
+      updateHeaderBandInfo();
+      renderPlayer();
+      if (state.activeTab === 'studio') renderStudioTab();
+      closeModal();
+      showToast('Perfil actualizado');
+    }
+
+    function openUploadTrackModal() {
+      openModal(`
+        <div class="flex items-center justify-between">
+          <h3 class="font-serif text-xl font-bold text-white">Subir Maqueta / Canción</h3>
+          <button onclick="closeModal()" class="text-zinc-400 hover:text-white">✕</button>
+        </div>
+        <form onsubmit="submitNewTrack(event)" class="space-y-3 text-xs">
+          <div>
+            <label class="block text-zinc-300 mb-1">Archivo de Audio Real (Opcional · MP3/WAV)</label>
+            <input id="trk-file" type="file" accept="audio/*" class="w-full bg-void border border-dashed border-scOrange/50 rounded-xl px-3 py-2 text-zinc-300 file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:bg-scOrange file:text-white file:text-[11px] file:font-bold" />
+          </div>
+          <div>
+            <label class="block text-zinc-300 mb-1">Título de la canción</label>
+            <input id="trk-title" required placeholder="Ej. Lluvia de Octubre" class="w-full bg-void border border-white/15 rounded-xl px-3 py-2 text-white" />
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-zinc-300 mb-1">Versión / Mezcla</label>
+              <input id="trk-version" required value="Demo v1" class="w-full bg-void border border-white/15 rounded-xl px-3 py-2 text-white" />
+            </div>
+            <div>
+              <label class="block text-zinc-300 mb-1">Subgénero</label>
+              <select id="trk-genre" class="w-full bg-void border border-white/15 rounded-xl px-3 py-2 text-white">
+                <option value="Dream Pop">Dream Pop</option>
+                <option value="Shoegaze">Shoegaze</option>
+                <option value="Indie Rock en Español">Indie Rock en Español</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-zinc-300 mb-1">Estado de Distribución</label>
+            <select id="trk-status" class="w-full bg-void border border-white/15 rounded-xl px-3 py-2 text-white">
+              <option value="Demo Privada">Demo Privada (Solo banda / curadores)</option>
+              <option value="En Revisión">En Revisión / Mastering</option>
+              <option value="Publicado en Streaming">Publicado en Streaming</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-zinc-300 mb-1">Notas de mezcla, reverb y cadena de pedales</label>
+            <textarea id="trk-notes" rows="2" placeholder="Ej. Guitarra con chorus + reverse reverb al 60%..." class="w-full bg-void border border-white/15 rounded-xl px-3 py-2 text-white"></textarea>
+          </div>
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-scOrange text-white font-bold">
+            Publicar en Estudio
+          </button>
+        </form>
+      `);
+    }
+
+    function submitNewTrack(e) {
+      e.preventDefault();
+      const fileInput = document.getElementById('trk-file');
+      const title = document.getElementById('trk-title').value.trim();
+      const version = document.getElementById('trk-version').value.trim();
+      const genre = document.getElementById('trk-genre').value;
+      const status = document.getElementById('trk-status').value;
+      const notes = document.getElementById('trk-notes').value.trim() || 'Mezcla atmosférica en progreso.';
+
+      const trackId = 't_' + Date.now();
+      let blobUrl = null;
+      if (fileInput && fileInput.files && fileInput.files[0]) {
+        blobUrl = URL.createObjectURL(fileInput.files[0]);
+        localBlobUrls[trackId] = blobUrl;
+      }
+
+      const randomWave = Array.from({ length: 32 }, (_, i) => {
+        const envelope = Math.sin((i / 31) * Math.PI);
+        return Math.floor(20 + envelope * 65 + Math.random() * 18);
+      });
+
+      const newTrack = {
+        id: trackId,
+        title,
+        version,
+        status,
+        genre,
+        durationSec: 180,
+        plays: 1,
+        audioUrl: blobUrl,
+        notes,
+        waveform: randomWave,
+        comments: [{ sec: 10, author: state.band.name, text: 'Primera subida al estudio.' }]
+      };
+
+      state.tracks.unshift(newTrack);
+      saveState();
+      selectBandTrack(trackId);
+      closeModal();
+      showToast(blobUrl ? '🎧 Audio real cargado en el reproductor' : '🎛️ Pista agregada al estudio');
+    }
+
+    function openAddCommentModal() {
+      const bandTrack = state.tracks.find(t => t.id === state.nowPlaying.id);
+      if (!bandTrack) return;
+      const sec = state.currentTimeSec;
+      openModal(`
+        <div class="flex items-center justify-between">
+          <h3 class="font-serif text-xl font-bold text-white">Nota en <span class="text-scOrange font-mono">${formatTime(sec)}</span></h3>
+          <button onclick="closeModal()" class="text-zinc-400 hover:text-white">✕</button>
+        </div>
+        <p class="text-[11px] text-zinc-400">Pista: <strong>${bandTrack.title}</strong></p>
+        <form onsubmit="submitTimedComment(event, ${sec})" class="space-y-3 text-xs">
+          <div>
+            <label class="block text-zinc-300 mb-1">Autor / Rol</label>
+            <input id="cmt-author" required value="Producción / Banda" class="w-full bg-void border border-white/15 rounded-xl px-3 py-2 text-white" />
+          </div>
+          <div>
+            <label class="block text-zinc-300 mb-1">Comentario de mezcla o idea de marketing</label>
+            <input id="cmt-text" required placeholder="Ej. Subir delay en este coro" class="w-full bg-void border border-white/15 rounded-xl px-3 py-2 text-white" />
+          </div>
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-scOrange text-white font-bold">
+            Fijar Nota en ${formatTime(sec)}
+          </button>
+        </form>
+      `);
+    }
+
+    function submitTimedComment(e, sec) {
+      e.preventDefault();
+      const track = state.tracks.find(t => t.id === state.nowPlaying.id);
+      if (!track) return;
+      const author = document.getElementById('cmt-author').value.trim();
+      const text = document.getElementById('cmt-text').value.trim();
+      if (!track.comments) track.comments = [];
+      track.comments.push({ sec, author, text });
+      saveState();
+      renderPlayer();
+      if (state.activeTab === 'studio') renderStudioTab();
+      closeModal();
+      showToast(`💬 Nota fijada en ${formatTime(sec)}`);
+    }
+
+    function openAddEventModal() {
+      openModal(`
+        <div class="flex items-center justify-between">
+          <h3 class="font-serif text-xl font-bold text-white">Nuevo Evento en Agenda</h3>
+          <button onclick="closeModal()" class="text-zinc-400 hover:text-white">✕</button>
+        </div>
+        <form onsubmit="submitNewEvent(event)" class="space-y-3 text-xs">
+          <div>
+            <label class="block text-zinc-300 mb-1">Título del evento</label>
+            <input id="ev-title" required placeholder="Ej. Sesión de fotos analógicas" class="w-full bg-void border border-white/15 rounded-xl px-3 py-2 text-white" />
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-zinc-300 mb-1">Fecha</label>
+              <input id="ev-date" type="date" required value="2026-12-05" class="w-full bg-void border border-white/15 rounded-xl px-3 py-2 text-white" />
+            </div>
+            <div>
+              <label class="block text-zinc-300 mb-1">Hora</label>
+              <input id="ev-time" type="time" required value="19:00" class="w-full bg-void border border-white/15 rounded-xl px-3 py-2 text-white" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-zinc-300 mb-1">Categoría</label>
+            <select id="ev-cat" class="w-full bg-void border border-white/15 rounded-xl px-3 py-2 text-white">
+              <option value="Ensayo">Ensayo</option>
+              <option value="Fecha en Vivo">Fecha en Vivo</option>
+              <option value="Entrega Máster">Entrega Máster</option>
+              <option value="Contenido">Publicación de Contenido</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-zinc-300 mb-1">Lugar o Plataforma</label>
+            <input id="ev-loc" required placeholder="Ej. Sala 3 / Instagram Reels" class="w-full bg-void border border-white/15 rounded-xl px-3 py-2 text-white" />
+          </div>
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-scOrange text-white font-bold">
+            Agregar a la Agenda
+          </button>
+        </form>
+      `);
+    }
+
+    function submitNewEvent(e) {
+      e.preventDefault();
+      state.events.push({
+        id: 'ev_' + Date.now(),
+        title: document.getElementById('ev-title').value.trim(),
+        date: document.getElementById('ev-date').value,
+        time: document.getElementById('ev-time').value,
+        category: document.getElementById('ev-cat').value,
+        location: document.getElementById('ev-loc').value.trim()
+      });
+      saveState();
+      renderAgendaTab();
+      closeModal();
+      showToast('📅 Evento guardado');
+    }
+
+    function openAddSetlistModal() {
+      openModal(`
+        <div class="flex items-center justify-between">
+          <h3 class="font-serif text-xl font-bold text-white">Agregar al Setlist</h3>
+          <button onclick="closeModal()" class="text-zinc-400 hover:text-white">✕</button>
+        </div>
+        <form onsubmit="submitNewSetlistSong(event)" class="space-y-3 text-xs">
+          <div>
+            <label class="block text-zinc-300 mb-1">Canción</label>
+            <input id="set-title" required placeholder="Ej. Horizonte Violeta" class="w-full bg-void border border-white/15 rounded-xl px-3 py-2 text-white" />
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-zinc-300 mb-1">Duración</label>
+              <input id="set-dur" required value="03:50" class="w-full bg-void border border-white/15 rounded-xl px-3 py-2 text-white" />
+            </div>
+            <div>
+              <label class="block text-zinc-300 mb-1">Afinación</label>
+              <input id="set-tun" required value="Estándar (E)" class="w-full bg-void border border-white/15 rounded-xl px-3 py-2 text-white" />
+            </div>
+          </div>
+          <div>
+            <label class="block text-zinc-300 mb-1">Pedales / Notas técnicas</label>
+            <input id="set-gear" required placeholder="Ej. Chorus + Delay largo + Fuzz en puente" class="w-full bg-void border border-white/15 rounded-xl px-3 py-2 text-white" />
+          </div>
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-scOrange text-white font-bold">
+            Añadir al Repertorio
+          </button>
+        </form>
+      `);
+    }
+
+    function submitNewSetlistSong(e) {
+      e.preventDefault();
+      state.setlist.push({
+        id: 's_' + Date.now(),
+        title: document.getElementById('set-title').value.trim(),
+        duration: document.getElementById('set-dur').value.trim(),
+        tuning: document.getElementById('set-tun').value.trim(),
+        gear: document.getElementById('set-gear').value.trim()
+      });
+      saveState();
+      renderAgendaTab();
+      closeModal();
+      showToast('🎸 Canción agregada al setlist');
+    }
+
+    function copyTextToClipboard(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        showToast('📋 Copiado al portapapeles');
+      } catch (err) {
+        showToast('No se pudo copiar automáticamente');
+      }
+      document.body.removeChild(textarea);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      state.isPlaying = false;
+      updateHeaderBandInfo();
+      renderPlayer();
+      switchTab(state.activeTab || 'radar');
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      }
+    });
+  </script>
+</body>
+</html>

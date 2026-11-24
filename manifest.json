@@ -1,0 +1,26 @@
+{
+  "name": "REVERB MANAGER · Indie & Shoegaze",
+  "short_name": "ReverbMgr",
+  "description": "Centro de mando para bandas de dream pop, shoegaze e indie rock en español: estudio, marketing, radar de escena y agenda.",
+  "start_url": "./reverb_manager.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0c0c0f",
+  "theme_color": "#ff5500",
+  "lang": "es-MX",
+  "icons": [
+    {
+      "src": "https://placehold.co/192x192/ff5500/ffffff?text=RM",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://placehold.co/512x512/16161c/ff5500?text=REVERB",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
